@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jtracker
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.format_sql: true
+
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 587
+    username: a8cbe8dc855114
+    password: bf79e8d3309685
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+jwt:
+  secret: ${JWT_SECRET:dev-secret-change}
+  expiryMinutes: 120
+
+openai:
+  baseUrl: https://api.openai.com/v1
+  apiKey: ${OPENAI_API_KEY:}
+
+springdoc:
+  api-docs.enabled: true
+  swagger-ui.path: /swagger
+
+google:
+  clientId: ${GOOGLE_CLIENT_ID:}
+
+jtracker:
+  mail:
+    from-address: puriakhil74@gmail.com
+  support:
+    to-address: ${SUPPORT_TO_ADDRESS:puriakhil74@gmail.com}
