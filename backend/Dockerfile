@@ -2,18 +2,18 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy everything in backend/ into the image
+# Copy everything from backend/ into the image
 COPY . .
 
-# Build the JAR (skip tests to keep it fast)
-RUN mvn clean package -DskipTests
+# Build a Spring Boot fat jar (executable jar)
+RUN mvn -DskipTests clean package spring-boot:repackage
 
 # === Run stage: minimal Java 21 runtime ===
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-# Copy the built JAR from the build stage
+# Copy the built Boot jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
 # Spring Boot default port
