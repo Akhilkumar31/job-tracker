@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://job-tracker-1-d5zv.onrender.com/api/$1"
+    }
+  ]
+}
