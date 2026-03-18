@@ -1,48 +1,88 @@
-import { Status } from '../types'
+import type { Status } from "../types";
 
-export default function StatusBadge({ status }: { status: Status }) {
-  const styles: Record<Status, { dot: string; text: string; bg: string }> = {
-    APPLIED: {
-      dot: 'bg-blue-400',
-      text: 'text-blue-300',
-      bg: 'bg-[rgba(30,60,120,0.35)]',
-    },
-    INTERVIEW: {
-      dot: 'bg-amber-300',
-      text: 'text-amber-300',
-      bg: 'bg-[rgba(120,90,0,0.35)]',
-    },
-    REJECTED: {
-      dot: 'bg-rose-400',
-      text: 'text-rose-300',
-      bg: 'bg-[rgba(120,20,40,0.35)]',
-    },
-    OFFER: {
-      dot: 'bg-emerald-400',
-      text: 'text-emerald-300',
-      bg: 'bg-[rgba(0,70,40,0.35)]',
-    },
-  }
+type Props = {
+  status?: Status | string | null;
+};
 
-  const st = styles[status]
+const styles: Record<
+  Status,
+  { label: string; bg: string; text: string; ring?: string }
+> = {
+  SAVED: {
+    label: "Saved",
+    bg: "bg-gray-100",
+    text: "text-gray-700",
+    ring: "ring-gray-200",
+  },
+  APPLIED: {
+    label: "Applied",
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    ring: "ring-blue-200",
+  },
+  PHONE_SCREEN: {
+    label: "Phone Screen",
+    bg: "bg-indigo-100",
+    text: "text-indigo-700",
+    ring: "ring-indigo-200",
+  },
+  INTERVIEW: {
+    label: "Interview",
+    bg: "bg-yellow-100",
+    text: "text-yellow-800",
+    ring: "ring-yellow-200",
+  },
+  OFFER: {
+    label: "Offer",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    ring: "ring-green-200",
+  },
+  REJECTED: {
+    label: "Rejected",
+    bg: "bg-red-100",
+    text: "text-red-700",
+    ring: "ring-red-200",
+  },
+  WITHDRAWN: {
+    label: "Withdrawn",
+    bg: "bg-slate-100",
+    text: "text-slate-700",
+    ring: "ring-slate-200",
+  },
+};
+
+const fallback = {
+  label: "Unknown",
+  bg: "bg-gray-100",
+  text: "text-gray-700",
+  ring: "ring-gray-200",
+};
+
+export default function StatusBadge({ status }: Props) {
+  // Normalize whatever comes in:
+  // - handle undefined/null
+  // - trim spaces
+  // - uppercase so "applied" becomes "APPLIED"
+  const normalized = (status ?? "")
+    .toString()
+    .trim()
+    .toUpperCase() as Status;
+
+  // Key line that prevents crashing:
+  const st = styles[normalized] ?? fallback;
 
   return (
     <span
-      className={`
-        inline-flex items-center gap-2
-        rounded-full px-3 py-1.5
-        font-mono text-[10px] font-semibold
-        ${st.bg} text-[#CCCCCC]
-        border border-[#2A2D2E]
-        shadow-[0_0_0_1px_#000_inset]
-        hover:bg-[#2D2D2D] transition-colors
-        ${st.text}
-      `}
+      className={[
+        "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
+        st.bg,
+        st.text,
+        st.ring ?? "ring-gray-200",
+      ].join(" ")}
+      title={status ?? ""}
     >
-      <span
-        className={`h-2 w-2 rounded-full ${st.dot} shadow-[0_0_4px_rgba(0,0,0,0.4)]`}
-      />
-      {status}
+      {st.label}
     </span>
-  )
+  );
 }

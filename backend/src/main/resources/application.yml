@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/jtracker
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/jtracker}
     username: ${DB_USER:postgres}
     password: ${DB_PASS:postgres}
   jpa:
@@ -13,10 +13,10 @@ spring:
       hibernate.format_sql: true
 
   mail:
-    host: sandbox.smtp.mailtrap.io
-    port: 587
-    username: a8cbe8dc855114
-    password: bf79e8d3309685
+    host: ${MAIL_HOST:sandbox.smtp.mailtrap.io}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USER:}
+    password: ${MAIL_PASS:}
     properties:
       mail:
         smtp:
