@@ -83,7 +83,7 @@ export const useAuth = create<State>((set, get) => ({
 
   async loginWithGoogle(idToken) {
     const { data } = await api.post<{ token: string }>(
-      '/auth/oauth/google',
+      '/api/auth/oauth/google',
       { idToken }
     )
 
