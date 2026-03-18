@@ -35,14 +35,14 @@ export default function App(){
           <Route path="/applications" element={<Guard><Applications/></Guard>} />
           <Route path="/resume" element={<Guard><ResumeMatch/></Guard>} />
 
+          <Route path="/profile" element={<Guard><Profile /></Guard>} />
+          <Route path="/settings" element={<Guard><Settings /></Guard>} />
+          <Route path="/support" element={<Guard><Support /></Guard>} />
+          <Route path="/wishlist" element={<Guard><Wishlist /></Guard>} />
+          <Route path="/cover-letter" element={<Guard><CoverLetter /></Guard>} />
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/dashboard" />} />
-
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/cover-letter" element={<CoverLetter />} />
         </Routes>
       </div>
     </div>

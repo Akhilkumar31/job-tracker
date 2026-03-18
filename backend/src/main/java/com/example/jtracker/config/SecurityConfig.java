@@ -16,8 +16,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -26,6 +28,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+
+    @Value("${cors.allowed-origins:http://localhost:5173}")
+    private String allowedOriginsRaw;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -46,11 +51,11 @@ public class SecurityConfig {
 
                 // public auth + docs
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").authenticated()
                 .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 
                 // static uploads
-                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/uploads/**").authenticated()
 
                 // everything else requires JWT
                 .anyRequest().authenticated()
@@ -62,8 +67,9 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> origins = Arrays.asList(allowedOriginsRaw.split(","));
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

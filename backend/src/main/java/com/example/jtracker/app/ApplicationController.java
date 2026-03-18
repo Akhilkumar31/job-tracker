@@ -5,14 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
-import java.util.List;
-
-@CrossOrigin(
-        origins = "*",
-        allowedHeaders = "*",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
-                   RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS}
-)
 @RestController
 @RequestMapping("/api/apps")
 public class ApplicationController {

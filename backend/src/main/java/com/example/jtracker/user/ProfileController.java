@@ -6,6 +6,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import org.springframework.http.ResponseEntity;
 
 record ProfileResponse(
         String email,
@@ -73,7 +75,7 @@ public class ProfileController {
     }
 
     @PatchMapping
-    public ProfileResponse updateProfile(@RequestBody ProfileUpdateRequest req) {
+    public ResponseEntity<?> updateProfile(@RequestBody ProfileUpdateRequest req) {
         var u = me();
 
         if (req.displayName() != null) {
@@ -96,12 +98,15 @@ public class ProfileController {
             if (req.dateOfBirth().isBlank()) {
                 u.setDateOfBirth(null);
             } else {
-                LocalDate parsed = LocalDate.parse(req.dateOfBirth());
-                u.setDateOfBirth(parsed);
+                try {
+                    u.setDateOfBirth(LocalDate.parse(req.dateOfBirth()));
+                } catch (DateTimeParseException e) {
+                    return ResponseEntity.badRequest().body("Invalid dateOfBirth format, expected yyyy-MM-dd");
+                }
             }
         }
 
         users.save(u);
-        return getProfile();
+        return ResponseEntity.ok(getProfile());
     }
 }

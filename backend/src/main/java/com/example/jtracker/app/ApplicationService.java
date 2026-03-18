@@ -49,7 +49,23 @@ public class ApplicationService {
         return root;
     }
 
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+
     private String saveFile(MultipartFile file, Path root) throws IOException {
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("File exceeds maximum allowed size of 5 MB");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Only PDF and Word documents are allowed");
+        }
+
         String originalName = file.getOriginalFilename();
         if (originalName == null || originalName.isBlank()) {
             originalName = "file";

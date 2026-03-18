@@ -48,8 +48,11 @@ springdoc:
 google:
   clientId: ${GOOGLE_CLIENT_ID:}
 
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
 jtracker:
   mail:
-    from-address: puriakhil74@gmail.com
+    from-address: ${MAIL_FROM_ADDRESS:puriakhil74@gmail.com}
   support:
     to-address: ${SUPPORT_TO_ADDRESS:puriakhil74@gmail.com}
