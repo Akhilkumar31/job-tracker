@@ -10,4 +10,22 @@ api.interceptors.request.use(cfg => {
   return cfg
 })
 
+api.interceptors.response.use(
+  res => res,
+  err => {
+    const status = err.response?.status
+    if (
+      (status === 401 || status === 403) &&
+      typeof window !== 'undefined' &&
+      !window.location.pathname.startsWith('/login') &&
+      !window.location.pathname.startsWith('/register') &&
+      !window.location.pathname.startsWith('/auth/')
+    ) {
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
+    return Promise.reject(err)
+  }
+)
+
 export default api

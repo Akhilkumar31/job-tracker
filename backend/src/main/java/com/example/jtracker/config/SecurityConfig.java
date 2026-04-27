@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 
                 // static uploads
-                .requestMatchers("/uploads/**").authenticated()
+                .requestMatchers("/uploads/**").permitAll()
 
                 // everything else requires JWT
                 .anyRequest().authenticated()

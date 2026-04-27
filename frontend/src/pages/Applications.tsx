@@ -443,6 +443,24 @@ export default function Applications() {
     XLSX.writeFile(workbook, 'applications.xlsx')
   }
 
+  // --- AUTHENTICATED FILE VIEWER ---
+  const viewFile = async (url: string) => {
+    const newTab = window.open('', '_blank')
+    if (!newTab) return
+    try {
+      const token = localStorage.getItem('token') || ''
+      const res = await fetch(url, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (!res.ok) { newTab.close(); return }
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      newTab.location.href = blobUrl
+    } catch {
+      newTab.close()
+    }
+  }
+
   // --- CREATE NEW APPLICATION (multipart/form-data) ---
   const save = async () => {
     const {
@@ -487,23 +505,7 @@ export default function Applications() {
     try {
       setSaving(true)
 
-      const token = localStorage.getItem('token') || ''
-
-      const res = await fetch('/api/apps', {
-        method: 'POST',
-        body: formData,
-        headers: token
-          ? {
-              Authorization: `Bearer ${token}`,
-            }
-          : {},
-      })
-
-      if (!res.ok) {
-        console.error('Create app failed:', res.status, await res.text())
-        alert('Failed to save application. Please try again.')
-        return
-      }
+      await api.post('/apps', formData)
 
       setForm({
         company: '',
@@ -523,8 +525,10 @@ export default function Applications() {
       if (coverInput) coverInput.value = ''
 
       loadApps()
-    } catch (err) {
-      alert('Failed to save application. Please try again.')
+    } catch (err: any) {
+      if (err?.response?.status !== 401 && err?.response?.status !== 403) {
+        alert('Failed to save application. Please try again.')
+      }
       console.error(err)
     } finally {
       setSaving(false)
@@ -597,33 +601,14 @@ export default function Applications() {
         if (editResumeFile) fd.append('resume', editResumeFile)
         if (editCoverLetterFile) fd.append('coverLetter', editCoverLetterFile)
 
-        const token = localStorage.getItem('token') || ''
-
-        const resFiles = await fetch(`/api/apps/${editing.id}/files`, {
-          method: 'PATCH',
-          body: fd,
-          headers: token
-            ? {
-                Authorization: `Bearer ${token}`,
-              }
-            : {},
-        })
-
-        if (!resFiles.ok) {
-          console.error('Update files failed:', resFiles.status, await resFiles.text())
-          alert('Application updated, but updating attachments failed.')
-        }
+        await api.patch(`/apps/${editing.id}/files`, fd)
       }
 
       await loadApps()
       cancelEdit()
     } catch (err: any) {
       const statusCode = err?.response?.status
-      if (statusCode === 403) {
-        alert("You don't have permission to modify this application (not the owner).")
-      } else if (statusCode === 401) {
-        alert('Session expired. Please sign in again.')
-      } else {
+      if (statusCode !== 401 && statusCode !== 403) {
         alert('Update failed. Please try again.')
       }
       console.error(err)
@@ -639,11 +624,7 @@ export default function Applications() {
       await loadApps()
     } catch (err: any) {
       const status = err?.response?.status
-      if (status === 403) {
-        alert("You don't have permission to modify this application (not the owner).")
-      } else if (status === 401) {
-        alert('Session expired. Please sign in again.')
-      } else {
+      if (status !== 401 && status !== 403) {
         alert('Update failed. Please try again.')
       }
       console.error(err)
@@ -1023,27 +1004,23 @@ export default function Applications() {
                       <td className="px-3 py-3 align-top text-center text-xs text-slate-300">
                         <div className="space-y-1">
                           {a.resumeUrl ? (
-                            <a
-                              href={a.resumeUrl}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button
+                              onClick={() => viewFile(a.resumeUrl!)}
                               className="inline-flex items-center justify-center rounded-full border border-sky-400/60 bg-sky-500/10 px-2 py-0.5 text-[11px] font-mono font-medium text-sky-200 hover:bg-sky-500/20"
                             >
                               Resume
-                            </a>
+                            </button>
                           ) : (
                             <span className="text-slate-500">No resume</span>
                           )}
 
                           {a.coverLetterUrl ? (
-                            <a
-                              href={a.coverLetterUrl}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button
+                              onClick={() => viewFile(a.coverLetterUrl!)}
                               className="ml-1 inline-flex items-center justify-center rounded-full border border-slate-500/60 bg-slate-600/20 px-2 py-0.5 text-[11px] font-mono font-medium text-slate-100 hover:bg-slate-500/30"
                             >
                               Cover letter
-                            </a>
+                            </button>
                           ) : (
                             <div className="text-[11px] text-slate-500">
                               No cover letter
@@ -1321,14 +1298,12 @@ export default function Applications() {
                 {editing?.resumeUrl && !editResumeFile && (
                   <p className="text-[11px] text-slate-400">
                     Current:{' '}
-                    <a
-                      href={editing.resumeUrl}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      onClick={() => viewFile(editing!.resumeUrl!)}
                       className="underline decoration-sky-400/70 underline-offset-2 hover:text-sky-300"
                     >
                       view existing resume
-                    </a>
+                    </button>
                     . If you don&apos;t pick a new file, the existing one stays.
                   </p>
                 )}
@@ -1375,14 +1350,12 @@ export default function Applications() {
                 {editing?.coverLetterUrl && !editCoverLetterFile && (
                   <p className="text-[11px] text-slate-400">
                     Current:{' '}
-                    <a
-                      href={editing.coverLetterUrl}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      onClick={() => viewFile(editing!.coverLetterUrl!)}
                       className="underline decoration-sky-400/70 underline-offset-2 hover:text-sky-300"
                     >
                       view existing cover letter
-                    </a>
+                    </button>
                     . If you don&apos;t pick a new file, the existing one stays.
                   </p>
                 )}
